@@ -4,6 +4,8 @@ execute_process(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE GIT_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+    RESULT_VARIABLE GIT_DESCRIBE_RESULT
 )
 
 # If VERSION is not defined, set it to the latest git tag or "0.0.0" if no tag is found
