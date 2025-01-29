@@ -1,0 +1,53 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get project name
+        run: |
+          echo "PROJECT_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+
+      - name: Configure
+        run: |
+          cmake -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: |
+          cmake --build build --target ${{ env.PROJECT_NAME }}-tests
+
+      - name: Test
+        run: cd ./build/$sub_project && ./$bin
+        env:
+          sub_project: tests
+          bin: ${{ env.PROJECT_NAME }}-tests
+
+      - name: Create coverage reports
+        if: github.event_name == 'push'
+        run: |
+          cd ./build
+          sudo apt-get install lcov
+          lcov --capture --directory . --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          lcov --remove coverage.info '*/tests/*' --output-file coverage.info
+          lcov --remove coverage.info '*/build/*' --output-file coverage.info
+          lcov --list coverage.info
+          rm -rf tests
+
+      - name: Upload coverage reports to Codecov
+        if: github.event_name == 'push'
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
