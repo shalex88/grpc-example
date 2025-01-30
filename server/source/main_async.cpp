@@ -2,17 +2,16 @@
 #include <memory>
 #include <string>
 #include <grpcpp/grpcpp.h>
-#include <grpcpp/server_builder.h>
-#include <grpcpp/server_context.h>
-#include <grpcpp/completion_queue.h>
-#include <grpcpp/support/async_stream.h>
+#include <cassert>
 #include "proto/helloworld.pb.h"
 #include "proto/helloworld.grpc.pb.h"
+
+#define GPR_ASSERT assert
 
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::CompletionQueue;
+using grpc::ServerCompletionQueue;
 using grpc::ServerAsyncResponseWriter;
 using grpc::Status;
 using helloworld::Greeter;
@@ -41,7 +40,7 @@ public:
 private:
     class CallData {
     public:
-        CallData(Greeter::AsyncService* service, CompletionQueue* cq)
+        CallData(Greeter::AsyncService* service, ServerCompletionQueue* cq)
             : service_(service), cq_(cq), responder_(&ctx_), status_(CREATE) {
             Proceed();
         }
@@ -68,6 +67,7 @@ private:
         HelloRequest request_;
         HelloReply reply_;
         ServerAsyncResponseWriter<HelloReply> responder_;
+        ServerCompletionQueue* cq_;
         enum CallStatus { CREATE, PROCESS, FINISH };
         CallStatus status_;
     };
@@ -85,7 +85,7 @@ private:
 
     std::unique_ptr<Server> server_;
     Greeter::AsyncService service_;
-    std::unique_ptr<CompletionQueue> cq_;
+    std::unique_ptr<ServerCompletionQueue> cq_;
 };
 
 int main(int argc, char** argv) {
