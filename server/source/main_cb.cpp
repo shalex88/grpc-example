@@ -13,13 +13,11 @@ using helloworld::Greeter;
 using helloworld::HelloRequest;
 using helloworld::HelloReply;
 
-class GreeterServiceImpl final : public Greeter::CallbackService {
-    grpc::ServerUnaryReactor* SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
+class GreeterServiceImpl final : public Greeter::Service {
+    Status SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
         std::string prefix("Hello ");
         reply->set_message(prefix + request->name());
-        auto* reactor = context->DefaultReactor();
-        reactor->Finish(Status::OK);
-        return reactor;
+        return Status::OK;
     }
 };
 
