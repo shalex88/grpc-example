@@ -1,4 +1,4 @@
-set(PROJECT_NAME grpc-client-example)
+set(PROJECT_NAME grpc-client)
 project(${PROJECT_NAME})
 
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
@@ -9,15 +9,16 @@ set(SOURCE_DIR "source")
 set(INCLUDE_DIR "include")
 
 include_directories(${INCLUDE_DIR} ${SOURCE_DIR})
-file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "${SOURCE_DIR}/*.cpp")
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${PROTO_SOURCE_FILES})
+add_executable(${PROJECT_NAME}-sync ${SOURCE_FILES} ${PROTO_SOURCE_FILES} "${SOURCE_DIR}/main_sync.cpp")
+add_executable(${PROJECT_NAME}-async ${SOURCE_FILES} ${PROTO_SOURCE_FILES} "${SOURCE_DIR}/main_async.cpp")
+add_executable(${PROJECT_NAME}-cb ${SOURCE_FILES} ${PROTO_SOURCE_FILES} "${SOURCE_DIR}/main_cb.cpp")
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    proto
-)
+foreach(target ${PROJECT_NAME}-sync ${PROJECT_NAME}-async ${PROJECT_NAME}-cb)
+    target_link_libraries(${target}
+        PRIVATE
+        proto
+    )
+endforeach()
 
 add_subdirectory(tests)
-
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)

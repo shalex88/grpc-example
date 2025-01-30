@@ -1,6 +1,5 @@
-# find_package(protobuf CONFIG REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-# find_package(Threads)
 
 set(PROTO_SRC_DIR "${CMAKE_SOURCE_DIR}/proto")
 file(GLOB_RECURSE PROTO_FILES CONFIGURE_DEPENDS "${PROTO_SRC_DIR}/*.proto")
@@ -8,8 +7,7 @@ file(GLOB_RECURSE PROTO_FILES CONFIGURE_DEPENDS "${PROTO_SRC_DIR}/*.proto")
 add_library(proto ${PROTO_FILES})
 target_link_libraries(proto
     PUBLIC
-    # protobuf::libprotobuf
-    # gRPC::grpc
+    protobuf::libprotobuf
     gRPC::grpc++
 )
 target_include_directories(proto PUBLIC ${CMAKE_BINARY_DIR})
