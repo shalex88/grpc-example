@@ -1,10 +1,10 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <grpcpp/grpcpp.h>
+#include "grpcpp/grpcpp.h"
 #include <grpcpp/alarm.h>
-#include "proto/helloworld.pb.h"
-#include "proto/helloworld.grpc.pb.h"
+#include "helloworld.pb.h"
+#include "helloworld.grpc.pb.h"
 
 using grpc::Channel;
 using grpc::ClientContext;

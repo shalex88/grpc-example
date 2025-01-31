@@ -3,9 +3,10 @@
 #include <string>
 #include <thread>
 #include <chrono>
-#include <grpcpp/grpcpp.h>
-#include "proto/helloworld.pb.h"
-#include "proto/helloworld.grpc.pb.h"
+#include <condition_variable>
+#include "grpcpp/grpcpp.h"
+#include "helloworld.pb.h"
+#include "helloworld.grpc.pb.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -20,23 +21,34 @@ public:
         : stub_(Greeter::NewStub(channel)) {}
 
     void SayHello(const std::string& user) {
+        std::unique_lock<std::mutex> lock(mutex_);
+
         HelloRequest request;
         request.set_name(user);
 
         stub_->async()->SayHello(&context_, &request, &reply_,
             [this](Status status) {
+                std::lock_guard<std::mutex> lock(mutex_);
                 if (status.ok()) {
                     std::cout << "Greeter received: " << reply_.message() << std::endl;
                 } else {
                     std::cerr << "RPC failed: " << status.error_message() << std::endl;
                 }
+                done_ = true;
+                cv_.notify_one();
             });
+
+        // Wait for the RPC to complete
+        cv_.wait(lock, [this] { return done_; });
     }
 
 private:
     std::unique_ptr<Greeter::Stub> stub_;
     ClientContext context_;
     HelloReply reply_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    bool done_ = false;
 };
 
 int main(int argc, char** argv) {

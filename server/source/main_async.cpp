@@ -1,10 +1,10 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <grpcpp/grpcpp.h>
+#include "grpcpp/grpcpp.h"
 #include <cassert>
-#include "proto/helloworld.pb.h"
-#include "proto/helloworld.grpc.pb.h"
+#include "helloworld.pb.h"
+#include "helloworld.grpc.pb.h"
 
 #define GPR_ASSERT assert
 

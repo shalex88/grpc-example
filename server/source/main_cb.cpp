@@ -1,9 +1,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <grpcpp/grpcpp.h>
-#include "proto/helloworld.pb.h"
-#include "proto/helloworld.grpc.pb.h"
+#include "grpcpp/grpcpp.h"
+#include "helloworld.pb.h"
+#include "helloworld.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -13,11 +13,13 @@ using helloworld::Greeter;
 using helloworld::HelloRequest;
 using helloworld::HelloReply;
 
-class GreeterServiceImpl final : public Greeter::Service {
-    Status SayHello(ServerContext* context, const HelloRequest* request, HelloReply* reply) override {
+class GreeterServiceImpl final : public Greeter::CallbackService {
+    grpc::ServerUnaryReactor* SayHello(grpc::CallbackServerContext* context, const HelloRequest* request, HelloReply* reply) override {
         std::string prefix("Hello ");
         reply->set_message(prefix + request->name());
-        return Status::OK;
+        auto* reactor = context->DefaultReactor();
+        reactor->Finish(Status::OK);
+        return reactor;
     }
 };
 
