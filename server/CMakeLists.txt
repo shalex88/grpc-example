@@ -25,4 +25,4 @@ foreach(target ${PROJECT_NAME}-sync ${PROJECT_NAME}-async ${PROJECT_NAME}-cb)
     )
 endforeach()
 
-# add_subdirectory(tests)
+add_subdirectory(tests)

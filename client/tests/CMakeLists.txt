@@ -12,11 +12,22 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(GoogleTest)
 
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "../*/source/*.cpp")
-list(REMOVE_ITEM SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/../*/source/main.cpp")
+list(REMOVE_ITEM SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/../*/source/main_*.cpp")
 file(GLOB_RECURSE TEST_FILES CONFIGURE_DEPENDS "*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${TEST_FILES})
-target_link_libraries(${PROJECT_NAME} gtest gtest_main gmock)
+
+target_link_libraries(${PROJECT_NAME}
+   gtest
+   gtest_main
+   gmock
+   proto
+)
+
+target_include_directories(${PROJECT_NAME}
+   PRIVATE
+   ${proto_INCLUDE_DIRS}
+)
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME})
